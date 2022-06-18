@@ -1,0 +1,231 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r load_packages}
+library(tidyverse)
+library(tidymodels)
+library(kknn)
+library(tidytext)
+library(textrecipes)
+library(here)
+library(moderndive)
+library(ranger)
+library(recipes)
+library(rsample)
+library(caret)
+library(tidymodels)
+library(kknn)
+```
+
+
+```{r set_style}
+theme_set(theme_minimal())
+scotblue <- "#0065BF"
+ukred <- "#D00C27"
+```
+
+
+loading the processed data that have only all the feachers a nd the recomndation score.
+```{r load_data}
+data <- read_csv('Data/clean_data.csv')
+colnames(data)
+```
+
+
+```{r}
+numeric_cols <- select_if(data, is.numeric)
+
+drops <- c("id", "index", "Date","...1")
+numeric_cols <- numeric_cols[, !(names(numeric_cols) %in% drops)]
+
+data_long <- data %>%
+  pivot_longer(colnames(numeric_cols)) %>% 
+  as.data.frame()
+data_long
+```
+Distributions
+```{r}
+ggplot(data_long, aes(x = value)) +
+  geom_histogram(aes(y=..density..), binwidth = 1) + 
+  geom_density(col="#FF0000") +
+  geom_vline(aes(xintercept = mean(value)), col="#0096B7", linetype="dashed", size=0.75) +
+  facet_wrap(~ name, scales = "free") + 
+  labs(x="", y="Density", title="Quick Overview of the aspects",
+       subtitle="Histogram for each numeric feature, with density and mean line")
+```
+
+split the data to train and test
+
+```{r split_data}
+set.seed(1234)
+data_split <- initial_split(data, strata = RECOMMENDATION)
+train <- training(data_split)
+test  <- testing(data_split)
+```
+
+set the  linear model 
+```{r set_linear_model}
+RECOMMENDATION_linear <- lm(RECOMMENDATION ~ IMPACT+SUBSTANCE+APPROPRIATENESS+MEANINGFUL_COMPARISON+SOUNDNESS_CORRECTNESS+
+ORIGINALITY+CLARITY+REVIEWER_CONFIDENCE,data = train)
+
+```
+
+
+histogram of the predicton error
+```{r}
+model_points <- get_regression_points(RECOMMENDATION_linear)
+ggplot(model_points, aes(x = residual)) +
+geom_histogram(bins = 50,color = "#000000", fill = "#0099F8") +
+  labs(
+    title = "Histogram of Recommendation Predicton of the linear model",
+    x = "Recommendation Prediction Error",
+    y = "Count"
+  ) +
+  theme_classic() +
+  theme(
+    plot.title = element_text(color = "#0099F8", size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 10, face = "bold"),
+    plot.caption = element_text(face = "italic")
+  )
+```
+
+mean squerd error of the linear model 
+```{r}
+mean(model_points$residual^2)
+```
+
+KNN
+```{r}
+knn_mod <- nearest_neighbor(mode="classification", neighbors=5) %>%
+  fit(as.factor(RECOMMENDATION) ~ SUBSTANCE + CLARITY + REVIEWER_CONFIDENCE + IMPACT, train)
+
+knn_mod
+```
+
+
+see knn predicton and real labels
+```{r}
+knn_pred <- knn_mod %>% predict(test) %>% bind_cols(test %>% select(RECOMMENDATION))
+knn_pred
+```
+conffesion metrix for knn
+```{r}
+knn_pred %>%
+  conf_mat(RECOMMENDATION, .pred_class) %>%
+  pluck(1) %>%
+  as_tibble() %>%
+  ggplot(aes(Prediction, Truth, alpha = n)) +
+  geom_tile(show.legend = FALSE) +
+  geom_text(aes(label = n), colour = "white", alpha = 1, size = 8)+
+  labs(
+    title = "conffesion metrix of the knn model",
+    x = "Predicton",
+    y = "Recomndation Score"
+  ) 
+```
+accuracy of knn
+```{r}
+knn_pred$tf <- if_else(knn_pred$RECOMMENDATION == knn_pred$.pred_class, 1, 0)
+
+sum(knn_pred$tf) / length(knn_pred$RECOMMENDATION)
+```
+
+Random Forest
+```{r}
+rf_mod <- rand_forest(mode="classification") %>%
+  fit(as.factor(RECOMMENDATION) ~ SUBSTANCE + CLARITY + REVIEWER_CONFIDENCE + IMPACT, train)
+
+rf_mod
+```
+
+see Random Forest predicton and real labels
+```{r}
+rf_pred <- rf_mod %>% predict(test) %>% bind_cols(test %>% select(RECOMMENDATION))
+rf_pred
+```
+
+conffesion metrix for Random Forest
+```{r}
+rf_pred %>%
+  conf_mat(RECOMMENDATION, .pred_class) %>%
+  pluck(1) %>%
+  as_tibble() %>%
+  ggplot(aes(Prediction, Truth, alpha = n)) +
+  geom_tile(show.legend = FALSE) +
+  geom_text(aes(label = n), colour = "white", alpha = 1, size = 8)+
+  labs(
+    title = "conffesion metrix of the Random Forest model",
+    x = "Predicton",
+    y = "Recomndation Score"
+  ) 
+```
+
+accuracy of Random Forest
+```{r}
+rf_pred$tf <- if_else(rf_pred$RECOMMENDATION == rf_pred$.pred_class, 1, 0)
+
+sum(rf_pred$tf) / length(rf_pred$RECOMMENDATION)
+```
+ 
+Neural Network with one hidden layer and 13 neurons in it
+
+```{r} 
+nnet_mod <- mlp(mode="classification",
+                hidden_units = 13) %>%
+  fit(as.factor(RECOMMENDATION) ~ SUBSTANCE + CLARITY + REVIEWER_CONFIDENCE, train)
+
+nnet_mod
+```
+
+see the Neural Network predicton and real labels
+```{r}
+nnet_pred <- nnet_mod %>% predict(test) %>% bind_cols(test %>% select(RECOMMENDATION))
+nnet_pred
+```
+
+
+conffesion metrix for Neural Network
+```{r}
+nnet_pred %>%
+  conf_mat(RECOMMENDATION, .pred_class) %>%
+  pluck(1) %>%
+  as_tibble() %>%
+  ggplot(aes(Prediction, Truth, alpha = n)) +
+  geom_tile(show.legend = FALSE) +
+  geom_text(aes(label = n), colour = "white", alpha = 1, size = 8)+
+  labs(
+    title = "conffesion metrix of the Neural Network model",
+    x = "Predicton",
+    y = "Recomndation Score"
+  ) 
+```
+
+
+accuracy of the  Neural Network
+```{r}
+nnet_pred$tf <- if_else(nnet_pred$RECOMMENDATION == nnet_pred$.pred_class, 1, 0)
+
+sum(nnet_pred$tf) / length(nnet_pred$RECOMMENDATION)
+```
+
+
+
+
+
+
+
+```{r}
+
+mean((as.numeric(nnet_pred$.pred_class) - as.numeric(nnet_pred$RECOMMENDATION))^2)
+
+```
+
+
+
+
+
+
