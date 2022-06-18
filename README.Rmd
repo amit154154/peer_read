@@ -25,53 +25,28 @@ ukred <- "#D00C27"
 ```
 
 
+loading the processed data that have only all the feachers a nd the recomndation score.
 ```{r load_data}
 data <- read_csv('Data/Data.csv', show_col_types = FALSE)
 ```
-```{r split conll and acl}
-data_acl <- data %>% filter(conference == 'acl_2017')
-data_conll <- data %>% filter(conference == 'conll_2016')
-```
+split the data to train and test
 
-
-```{r split_all}
+```{r split_data}
 set.seed(1234)
-data_splot <- initial_split(data, strata = RECOMMENDATION)
-train_all <- training(data_splot)
-test_all  <- testing(data_splot)
+data_split <- initial_split(data, strata = RECOMMENDATION)
+trainl <- training(data_split)
+test  <- testing(data_split)
 ```
 
-
+set the  linear model 
 ```{r set_linear_model}
-RECOMMENDATION_all_model <- lm(RECOMMENDATION ~ IMPACT+SUBSTANCE+APPROPRIATENESS+MEANINGFUL_COMPARISON+SOUNDNESS_CORRECTNESS+
-ORIGINALITY+CLARITY+REVIEWER_CONFIDENCE,data = train)
+RECOMMENDATION_linear <- lm(RECOMMENDATION ~ IMPACT+SUBSTANCE+APPROPRIATENESS+MEANINGFUL_COMPARISON+SOUNDNESS_CORRECTNESS+
+ORIGINALITY+CLARITY+REVIEWER_CONFIDENCE,data = train_all)
 
 ```
 
-```{r set_linear_model}
-model_points
 
-```
-
-```{r}
-model_points <- get_regression_points(RECOMMENDATION_all_model)
-ggplot(score_model_points, aes(x = RECOMMENDATION_hat)) +
-geom_histogram(bins = 20,color = "#000000", fill = "#0099F8") +
-  labs(
-    title = "Histogram of Recomndation Predicton of the linear model",
-    subtitle = "linear model for both confrences",
-    x = "Recomndation Predicton",
-    y = "Count"
-  ) +
-  theme_classic() +
-  theme(
-    plot.title = element_text(color = "#0099F8", size = 16, face = "bold"),
-    plot.subtitle = element_text(size = 10, face = "bold"),
-    plot.caption = element_text(face = "italic")
-  )
-```
-
-
+histogram of the predicton error
 ```{r}
 model_points <- get_regression_points(RECOMMENDATION_all_model)
 ggplot(model_points, aes(x = residual)) +
@@ -88,69 +63,6 @@ geom_histogram(bins = 50,color = "#000000", fill = "#0099F8") +
     plot.caption = element_text(face = "italic")
   )
 ```
-
-```{r split_acl}
-set.seed(1234)
-data_split <- initial_split(data_acl, strata = RECOMMENDATION)
-train_acl <- training(data_split)
-test_acl  <- testing(data_split)
-```
-
-
-```{r split_conll}
-set.seed(1234)
-data_split <- initial_split(data_conll, strata = RECOMMENDATION)
-train_conll <- training(data_split)
-test_conll  <- testing(data_split)
-```
-
-
-```{r set_linear_model_acl}
-RECOMMENDATION_acl_model <- lm(RECOMMENDATION ~ IMPACT+SUBSTANCE+APPROPRIATENESS+MEANINGFUL_COMPARISON+SOUNDNESS_CORRECTNESS+
-ORIGINALITY+CLARITY+REVIEWER_CONFIDENCE
- ,data = train_acl)
-RECOMMENDATION_acl_model
-```
-
-
-
-```{r histogram_acl}
-RECOMMENDATION_model_points <- get_regression_points(RECOMMENDATION_acl_model)
-
-model_points <- get_regression_points(RECOMMENDATION_model)
-ggplot(model_points, aes(x = RECOMMENDATION_hat)) +
-  geom_histogram(bins = 20) +
-  labs(x = "Residual", y = "Count")
-```
-
-
-```{r}
-ggplot(RECOMMENDATION_model_points, aes(x = SUBSTANCE, y = residual)) +
-  geom_point() +
-  labs(x = "SUBSTANCE", y = "RECOMMENDATION_hat")
-```
-
-```{r set_linear_model_conll}
-RECOMMENDATION_conll_model <- lm(RECOMMENDATION ~ IMPACT+SUBSTANCE+APPROPRIATENESS+MEANINGFUL_COMPARISON+SOUNDNESS_CORRECTNESS+
-ORIGINALITY+CLARITY+REVIEWER_CONFIDENCE
- ,data = train_conll)
-RECOMMENDATION_conll_model
-
-```
-```{r histogram_conll}
-model_points <- get_regression_points(RECOMMENDATION_conll_model)
-ggplot(model_points, aes(x = RECOMMENDATION_hat)) +
-  geom_histogram(bins = 20) +
-  labs(x = "Residual", y = "Count")
-```
-
-
-```{r}
-ggplot(model_points, aes(x = SUBSTANCE, y = residual)) +
-  geom_point() +
-  labs(x = "SUBSTANCE", y = "RECOMMENDATION_hat")
-```
-
 
 
 
