@@ -8,7 +8,7 @@
 - **peer_read_bert.ipynb** - the noteook that implemnt the semi superviesd teacher-studet fine tune bert that predict the recomndation score from the reviwer comment.
 - **Data** -  Directory that has two csv files:
 	1. **data.csv** - the csv that the **pre_process.py** code return 	from the  PeerReview paper data(19000 rows).
-	2. **clean_data.csv** - only the rows that have all the feachers we 		train on(308 rows)
+	2. **clean_data.csv** - only the rows that have all the feachers 		we 		train on(308 rows)
 - **requirments.txt** - list of all the requirments libraries to run the **peer_read_bert.ipynb** notbook on your enviorment.
 - **Readme.md** - this file :blush:
 
@@ -36,7 +36,7 @@ spacial thanks to :
 - [PeerReview](https://github.com/allenai/PeerRead) 
 - [PapersWithCode](https://paperswithcode.com)
 
-And of course my parter for the work **Stir Aharon Ezra**.
+And of course my parter for the work **Snir Aharon Ezra**.
 	
 
 
