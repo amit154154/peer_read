@@ -1,4 +1,5 @@
-#Final Project Advanced Programming in R
+Final Project Advanced Programming in R
+======
 
  explantion about the diffrent files:
  
@@ -12,8 +13,8 @@
 - **requirments.txt** - list of all the requirments libraries to run the **peer_read_bert.ipynb** notbook on your enviorment.
 - **Readme.md** - this file :blush:
 
-##Instructions for replicating our analysis of the project
-
+Instructions for replicating our analysis of the project
+------
 For implemnt the R code:
   1.Make a new directory in the directory where the 		code.Rmd file is located and name it Data.
   
