@@ -112,7 +112,8 @@ see knn predicton and real labels
 knn_pred <- knn_mod %>% predict(test) %>% bind_cols(test %>% select(RECOMMENDATION))
 knn_pred
 ```
-conffesion metrix for knn
+
+confusion matrix for knn
 ```{r}
 knn_pred %>%
   conf_mat(RECOMMENDATION, .pred_class) %>%
@@ -148,7 +149,7 @@ rf_pred <- rf_mod %>% predict(test) %>% bind_cols(test %>% select(RECOMMENDATION
 rf_pred
 ```
 
-conffesion metrix for Random Forest
+confusion matrix for Random Forest
 ```{r}
 rf_pred %>%
   conf_mat(RECOMMENDATION, .pred_class) %>%
@@ -188,7 +189,7 @@ nnet_pred
 ```
 
 
-conffesion metrix for Neural Network
+confusion matrix for Neural Network
 ```{r}
 nnet_pred %>%
   conf_mat(RECOMMENDATION, .pred_class) %>%
@@ -212,12 +213,7 @@ nnet_pred$tf <- if_else(nnet_pred$RECOMMENDATION == nnet_pred$.pred_class, 1, 0)
 sum(nnet_pred$tf) / length(nnet_pred$RECOMMENDATION)
 ```
 
-
-
-
-
-
-
+mean squerd error of the  Neural Network
 ```{r}
 
 mean((as.numeric(nnet_pred$.pred_class) - as.numeric(nnet_pred$RECOMMENDATION))^2)
