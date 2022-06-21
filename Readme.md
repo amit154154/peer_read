@@ -28,12 +28,25 @@ For implemnt the ipynb code:
   
 2. login to your weights and bisas user in section **login and 		setting weights and bisas**, if you dont want to use weights 		and bisas notice that you would need to change the train 		function for the model 
 3. change the path in the line
+
 ```
 df = pd.read_csv("/content/data.csv")
 ``` 
  to the path of **data.csv**.
 
-spacial thanks to :
+Simple Explenation
+------
+the input is a review about a page and the output is a recomndation score between 0-1.
+![bert architore](images/model_ explanation.png?raw=true )
+
+teacher student simple view explantion:
+![teacher student](images/teacher_student.jpeg?raw=true)
+
+
+
+spacial thanks to
+------
+
 
 - [huggingface:hugs:](https://huggingface.co)
 - [PeerReview](https://github.com/allenai/PeerRead) 
