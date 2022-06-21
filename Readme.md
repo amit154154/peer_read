@@ -38,7 +38,8 @@ df = pd.read_csv("/content/data.csv")
 Simple Explenation
 ------
 the input is a review about a page and the output is a recomndation score between 0-1.
-![bert architore](images/model_ explanation.png?raw=true )
+
+![model architecture](images/model-explanation.jpeg?raw=true)
 
 teacher student simple view explantion:
 ![teacher student](images/teacher_student.jpeg?raw=true)
