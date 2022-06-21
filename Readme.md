@@ -11,6 +11,7 @@ Final Project Advanced Programming in R
 	1. **data.csv** - the csv that the **pre_process.py** code return 	from the  PeerReview paper data(19000 rows).
 	2. **clean_data.csv** - only the rows that have all the feachers 		we 		train on(308 rows)
 - **requirments.txt** - list of all the requirments libraries to run the **peer_read_bert.ipynb** notbook on your enviorment.
+- **image** - the images in the section **Simple Explenation**
 - **Readme.md** - this file :blush:
 
 Instructions for replicating our analysis of the project
